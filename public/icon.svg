@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Pot mark: one form folding back into itself. Abstract geometry only. -->
+  <g fill="none" stroke="#171717" stroke-width="72" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 510.7 281.4 C 435.3 271.1, 320.8 361.8, 308.1 445.7 C 295.4 529.6, 391.1 635.0, 475.2 633.4" />
+    <path d="M 535.2 429.3 C 615.8 423.1, 703.7 523.2, 693.7 602.5 C 683.7 681.7, 579.3 769.1, 506.5 758.5" />
+  </g>
+</svg>
