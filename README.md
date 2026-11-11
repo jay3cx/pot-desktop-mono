@@ -1,117 +1,132 @@
-# pot-desktop-mono
+<div align="center">
 
-> 基于 [pot-app/pot-desktop](https://github.com/pot-app/pot-desktop) 3.0.7 的个人定制版
->
-> 划词翻译工具 · 黑白单色界面 · 修复智谱翻译 · 移除强制更新
+<img width="120" src="design/pot-1024.png" />
 
-<br/>
+# Pot
 
-## 这个项目是什么
+跨平台划词翻译工具 · 黑白单色界面
 
-这是 [Pot（派了个萌的翻译器）](https://github.com/pot-app/pot-desktop) 的一个 fork，在原作者 3.0.7 版本的基础上做了**界面重设计**和**功能修复**。
+基于 [pot-app/pot-desktop](https://github.com/pot-app/pot-desktop) 3.0.7（GPL-3.0）
 
-原项目是一个跨平台划词翻译软件，支持 20+ 翻译服务、截图 OCR、文本识别。本项目保留其全部核心能力，只针对个人使用场景做了以下调整。
+</div>
 
-**本仓库不是原创项目。** 全部基础代码归原作者所有，采用 GPL-3.0 协议。如果你想要原版，请访问 [pot-app/pot-desktop](https://github.com/pot-app/pot-desktop)。
+---
 
-<br/>
+## 界面
 
-## 改了什么
+<p align="center">
+  <img src="docs/screenshots/translate.png" width="330" />
+</p>
 
-### 1. 修复智谱 AI 翻译（原本完全不可用）
+选中文字按 `⌘ + M` 即可翻译。原文和译文分开显示，可一键复制、朗读、回译。
 
-原版 `chatglm` 服务即使填入正确 API Key 也会报「网络请求失败」。三个独立原因：
+<p align="center">
+  <img src="docs/screenshots/settings-service.png" width="700" />
+</p>
 
-| 问题 | 原因 | 修复 |
-|---|---|---|
-| CORS 拦截 | 浏览器 `fetch` 会先发 `OPTIONS` 预检，而智谱的预检响应**不返回任何 `Access-Control-*` 头** | 改用 Tauri 的 `@tauri-apps/api/http`，请求由 Rust 侧发出，不走 webview 的 CORS 检查 |
-| 模型下线 | 默认模型 `chatglm_turbo` 早已在智谱平台下线 | 旧模型名自动映射到当前免费模型 |
-| 鉴权方式 | 旧代码强制把 Key 拆成 `id.secret` 并签 JWT | 新版 Key 直接 `Bearer <key>`，只有旧格式才签 JWT |
+<p align="center">
+  <img src="docs/screenshots/settings-about.png" width="700" />
+</p>
 
-同时排查了当时所有可用模型，只保留三个**官方标价「免费」**且在翻译场景实测可用的：
+---
 
-| 模型 | 上下文 | 实测中位耗时 | 说明 |
-|---|---|---|---|
-| `glm-4-flash-250414` | 128K | 0.66s | 默认，最稳 |
-| `glm-4.7-flash` | 200K | 0.89s | 自动关闭 thinking，偶发 1305 已加重试 |
-| `glm-4.6v-flash` | 128K | — | 多模态，高峰期易限流 |
+## 怎么用
 
-### 2. 界面改黑白单色
+### 划词翻译
 
-移除原有的青色/陶土色强调色，全站改为中性灰阶：
+在任何应用里选中文字，按 `⌘ + M`，翻译窗口会在鼠标位置弹出。
 
-- 浅色：画布 `#FAFAFA` / 卡片 `#FFFFFF` / 文字 `#171717`
-- 深色：画布 `#161616` / 卡片 `#1C1C1C` / 文字 `#F5F5F5`
-- 语义色（success / warning / danger）也一并灰化
+如果不习惯快捷键，可以在 **设置 → 热键设置** 里改。
 
-参考 Claude Desktop 的克制风格：细边框代替色块、12px 圆角、系统字体。
+### 输入翻译
 
-### 3. 移除强制更新弹窗
+点击菜单栏图标，选「输入翻译」，直接打字翻译。
 
-上游把更新清单的版本号改成了 `4.0.0 / Manggo 1.0.0`，导致 3.0.7 每次启动都判定有新版本并弹出更新窗口。
+### 截图翻译
 
-本项目已完全移除更新器：删除 `updater.rs`、托盘菜单项、更新窗口、设置页开关，并在 `tauri.conf.json` 中设 `updater.active = false`。
+菜单栏图标 →「截图翻译」，框选屏幕区域，自动 OCR 后翻译。
 
-### 4. 新图标
+### 剪贴板监听
 
-黑白双弧标记（`design/pot-mark.svg`），按 macOS 图标网格绘制：1024 画布 / 824 本体 / 185 圆角 / 80.5% 占比。
+菜单栏图标 →「监听剪贴板」，之后每次复制文字都会自动翻译。
 
-<br/>
+---
+
+## 配置翻译服务
+
+首次使用需要配置一个翻译服务。**设置 → 服务设置 → 翻译**，点「添加内置服务」。
+
+### 智谱 AI（推荐，免费）
+
+1. 到 [智谱开放平台](https://open.bigmodel.cn/) 注册，获取 API Key
+2. 设置里选「智谱 AI」，填入 Key
+3. 模型选 `glm-4-flash-250414`（免费、速度快）
+
+> 本项目已修复原版智谱服务不可用的问题，详见 [MODIFICATIONS.md](./MODIFICATIONS.md)。
+
+### 其他服务
+
+支持 DeepL、有道、百度、腾讯、阿里、OpenAI 兼容接口、Ollama 本地模型等 20+ 服务。
+也可以点「添加外部插件」安装社区翻译插件。
+
+---
+
+## 常用设置
+
+| 位置 | 说明 |
+|---|---|
+| 常规设置 | 开机自启、监听端口、语言、主题、字体大小 |
+| 翻译设置 | 服务排序、自动复制、窗口行为、增量翻译 |
+| 文字识别 | OCR 引擎（系统 / Tesseract） |
+| 热键设置 | 划词翻译、输入翻译、截图识别的快捷键 |
+| 服务设置 | 翻译 / 识别 / 语音 / 生词本服务配置 |
+| 历史记录 | 所有翻译记录，可搜索 |
+| 备份设置 | WebDAV 备份配置 |
+
+---
+
+## 快捷键
+
+| 功能 | 默认快捷键 |
+|---|---|
+| 划词翻译 | `⌘ + M` |
+| 输入翻译 | 未设置 |
+| 截图翻译 | 未设置 |
+| 截图识别 | 未设置 |
+
+全部可在 **设置 → 热键设置** 中修改或清空。
+
+---
 
 ## 构建
-
-### 环境要求
-
-- Node.js `^22.23.4 || ^24.22.1 || >=26.12.1`
-- pnpm
-- Rust（stable）
-- macOS 需 Xcode Command Line Tools
-
-### 步骤
 
 ```bash
 pnpm install
 pnpm tauri build --bundles app
 ```
 
-产物在 `src-tauri/target/release/bundle/macos/pot.app`。
+环境要求：Node.js `^22.23.4 || ^24.22.1 || >=26.12.1`、pnpm、Rust stable。
 
-### macOS 签名说明
+### macOS 注意事项
 
-本项目**未附带代码签名证书**。若要本地构建并长期使用，需要注意：
+划词翻译需要**辅助功能**权限：系统设置 → 隐私与安全性 → 辅助功能，添加 pot.app。
 
-> macOS 的辅助功能授权（划词翻译必需）是按**代码签名**绑定的。未签名的 adhoc 构建每次重新编译都会改变 cdhash，导致系统认为这是一个新程序，**已授予的辅助功能权限会失效**。
+> 该权限按代码签名绑定。未签名的本地构建每次重新编译都会改变标识，
+> 导致权限反复失效。解决方式见 [MODIFICATIONS.md](./MODIFICATIONS.md#macos-签名说明)。
 
-解决方案是创建一个本地自签名身份，并在 `src-tauri/tauri.macos.conf.json` 中指定 `signingIdentity`。这样每次构建的 Identifier 保持稳定，授权不会丢失。
+---
 
-<br/>
+## 与原版的区别
 
-## 目录说明
+- 黑白单色界面（移除原来的青色/蓝色强调色）
+- 修复智谱 AI 翻译（原版填了正确 Key 也无法使用）
+- 移除强制更新弹窗（上游推送 4.0.0 改名通知）
+- 新图标
 
-```
-├── src/                    # 前端（React + NextUI + Tailwind）
-│   ├── services/translate/ # 翻译服务实现
-│   ├── window/             # 各窗口（翻译 / 设置 / 识别）
-│   └── style.css           # 全局主题
-├── src-tauri/              # Rust 后端（Tauri）
-│   ├── src/                # 主进程、托盘、窗口、服务端
-│   └── icons/ icons_mac/   # 应用图标
-├── design/                 # 图标源文件
-└── MODIFICATIONS.md        # 完整改动清单
-```
+完整改动见 [MODIFICATIONS.md](./MODIFICATIONS.md)。
 
-<br/>
+---
 
 ## 许可
 
-本项目遵循 **GPL-3.0**（与原项目一致），完整协议见 [LICENSE](./LICENSE)。
-
-原始代码版权归 [pot-app](https://github.com/pot-app/pot-desktop) 所有。本 fork 的修改部分同样以 GPL-3.0 发布。
-
-<br/>
-
-## 致谢
-
-- [pot-app/pot-desktop](https://github.com/pot-app/pot-desktop) — 原项目
-- [Tauri](https://tauri.app/) · [React](https://react.dev/) · [NextUI](https://nextui.org/)
-- [Phosphor Icons](https://phosphoricons.com/) — 曾使用的图标集
+[GPL-3.0](./LICENSE) · 原始代码版权归 [pot-app](https://github.com/pot-app/pot-desktop) 所有
